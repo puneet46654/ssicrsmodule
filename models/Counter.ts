@@ -1,13 +1,13 @@
-import mongoose, { Schema, model, models, Document } from "mongoose";
+import { Schema, model, models } from "mongoose";
 
-interface ICounter extends Document {
+export interface ICounter {
   _id: string;
   seq: number;
 }
 
 const CounterSchema = new Schema<ICounter>({
   _id: { type: String, required: true },
-  seq: { type: Number, default: 211549 }, // Start one less so first increment gives 211550
+  seq: { type: Number, default: 211549 },
 });
 
 const Counter = models.Counter || model<ICounter>("Counter", CounterSchema);
