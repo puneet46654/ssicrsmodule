@@ -1,24 +1,20 @@
-// components/Header.tsx
-
 "use client";
 
-import Image from "next/image";
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
 
 interface HeaderProps {
   className?: string;
 }
 
-// Define the common text classes (excluding font-weight) for reusability
-const commonTextClasses = "text-[14px] leading-[32px]";
-
 export default function Header({ className = "" }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
+  const [pathname, setPathname] = useState("/");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathname(window.location.pathname);
+    }
+  }, []);
 
   const isRegisterPage = pathname === "/Register";
   const loginPath = "/Login";
@@ -30,35 +26,14 @@ export default function Header({ className = "" }: HeaderProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isRegisterPage]);
 
-  useEffect(() => {
-    if (mobileOpen) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [mobileOpen]);
-
-  const goToRegister = () => {
-    router.push("/Register");
-    setMobileOpen(false);
-  };
-
-  const goToLogin = () => {
-    router.push(loginPath);
-    setMobileOpen(false);
+  const navigateTo = (path: string) => {
+    window.location.href = path;
   };
 
   const handleNavClick = (path: string) => {
-    router.push(path);
-    setMobileOpen(false);
+    navigateTo(path);
   };
 
-  const goHome = () => {
-    router.push("/Home");
-    setMobileOpen(false);
-  };
-
-  // Helper function to determine if a path is active, including checking for root path for 'Home'
   const checkIsActive = (path: string) => {
     if (path === "/Home" && pathname === "/") return true;
     return pathname === path;
@@ -82,9 +57,6 @@ export default function Header({ className = "" }: HeaderProps) {
     ? "text-gray-800"
     : "text-white";
 
-  const mobileMenuIconColor =
-    isRegisterPage || scrolled ? "text-gray-800" : "text-white";
-
   const logoSrc =
     isRegisterPage || scrolled
       ? "/Logos/Header/ssicrshead1.png"
@@ -98,67 +70,58 @@ export default function Header({ className = "" }: HeaderProps) {
 
   return (
     <header
-      className={`w-full py-3 md:py-4 flex items-center justify-between fixed top-0 left-0 z-50 transition-all duration-500
+      className={`w-[1920px] py-4 flex items-center justify-between fixed top-0 left-0 z-50
         ${headerBgColor} ${headerShadow} ${className}
-        px-4 sm:px-6 md:px-10
-        lg:px-20 xl:px-36 2xl:px-[290px] // laptops only expanded, desktop untouched
+        px-[290px]
       `}
     >
-      {/* Logo */}
       <button
-        onClick={goHome}
-        className="flex-shrink-0 flex items-center h-10 sm:h-12 focus:outline-none transition-transform duration-300 hover:scale-[1.02]"
+        onClick={() => navigateTo("/Home")}
+        className="flex-shrink-0 flex items-center h-12 focus:outline-none"
         aria-label="Go to Home"
       >
-        <Image
+        <img
           src={logoSrc}
           alt="SSI CRS Logo"
           width={220}
-          height={0}
-          className="w-auto h-8 sm:h-10 md:h-16 lg:h-18 xl:h-20 2xl:h-16 object-contain transition-all duration-500"
-          priority
+          height={80}
+          className="w-auto h-16 object-contain"
         />
       </button>
 
-      {/* Desktop Navigation */}
       <nav
-        className="hidden md:flex items-center space-x-8 lg:space-x-14 xl:space-x-16 2xl:space-x-10 ml-8"
-        style={{ fontFamily: "Lato, sans-serif" }} // Maintain Lato font family
+        className="flex items-center space-x-10 ml-8"
       >
         {navItems.map((item) => {
-          const isActive = checkIsActive(item.path); // Use the helper function
+          const isActive = checkIsActive(item.path);
           return (
             <button
               key={item.label}
               onClick={() => handleNavClick(item.path)}
-              className={`transition-colors duration-300
-                ${commonTextClasses} // Apply common font properties
+              className={`
                 ${isActive
-                  ? "text-[#C59D73] font-extrabold" // 👈 Changed from font-bold to font-extrabold (800)
-                  : `font-normal ${headerTextColor}` // NORMAL (400) when inactive
+                  ? "text-[#C59D73]"
+                  : `${headerTextColor}`
                 }
-                hover:text-[#C59D73]`}
+              `}
             >
               {item.label}
             </button>
           );
         })}
 
-        {/* Log In Button */}
         <button
-          onClick={goToLogin}
-          className={`px-6 py-2 rounded-[5px] transition-colors duration-300 border
-            ${commonTextClasses} font-normal // Apply font-normal explicitly for buttons
+          onClick={() => navigateTo(loginPath)}
+          className={`px-6 py-2 rounded-[5px] border
             ${isRegisterPage || scrolled
-              ? "bg-transparent text-[#A67950] border-[#A67950] hover:border-[#A67950]"
-              : "bg-transparent text-[#A67950] border-[#A67950] hover:border-[#A67950]"
+              ? "bg-transparent text-[#A67950] border-[#A67950]"
+              : "bg-transparent text-[#A67950] border-[#A67950]"
             }
           `}
         >
           Log In
         </button>
 
-        {/* Register Now Button */}
         <div className="relative flex items-center">
           <div
             className="absolute top-[-20] left-0 w-full"
@@ -171,74 +134,14 @@ export default function Header({ className = "" }: HeaderProps) {
             }}
           ></div>
           <button
-            onClick={goToRegister}
-            className={`relative z-10 px-3 py-2 rounded-full cursor-pointer text-white transition-colors duration-500
-              ${commonTextClasses} font-normal // Apply font-normal explicitly for buttons
-            `}
+            onClick={() => navigateTo("/Register")}
+            className={`relative z-10 px-3 py-2 rounded-full cursor-pointer text-white`}
             style={{ backgroundColor: "transparent" }}
           >
             Register Now
           </button>
         </div>
       </nav>
-
-      {/* Mobile Button - Icon color is handled by mobileMenuIconColor, no text classes needed here */}
-      <button
-        className={`md:hidden z-50 transition-colors duration-300 ${mobileMenuIconColor}`}
-        onClick={() => setMobileOpen(!mobileOpen)}
-        aria-label={mobileOpen ? "Close menu" : "Open menu"}
-      >
-        {mobileOpen ? <X size={26} /> : <Menu size={26} />}
-      </button>
-
-      {/* Mobile Navigation Menu */}
-      <div
-        className={`fixed inset-0 pt-[72px] bg-white transition-transform duration-300 md:hidden z-40
-          ${mobileOpen ? "translate-x-0" : "translate-x-full"}
-          flex flex-col items-center space-y-8 p-6 overflow-y-auto`}
-        style={{ fontFamily: "Lato, sans-serif" }}
-      >
-        {navItems.map((item) => {
-          const isActive = checkIsActive(item.path); // Use the helper function
-          return (
-            <button
-              key={item.label}
-              onClick={() => handleNavClick(item.path)}
-              className={`transition-colors duration-300 w-full text-center py-2
-                ${commonTextClasses} // Apply common font properties
-                ${isActive
-                  ? "text-[#C59D73] font-extrabold" // 👈 Changed from font-bold to font-extrabold (800)
-                  : "text-gray-800 font-normal" // NORMAL (400) when inactive
-                }
-                hover:text-[#C59D73]`}
-            >
-              {item.label}
-            </button>
-          );
-        })}
-
-        <div className="w-full h-[1px] bg-gray-200 my-4"></div>
-
-        {/* Log In Button (Mobile) */}
-        <button
-          onClick={goToLogin}
-          className={`w-full max-w-xs px-6 py-3 rounded-[5px] transition-colors duration-300 border bg-transparent text-[#A67950] border-[#A67950] hover:bg-[#F2F2F2]
-            ${commonTextClasses} font-normal
-          `}
-        >
-          Log In
-        </button>
-
-        {/* Register Now Button (Mobile) */}
-        <button
-          onClick={goToRegister}
-          className={`w-full max-w-xs px-6 py-3 rounded-[5px] cursor-pointer text-white transition-colors duration-300 bg-[#A67950] hover:bg-[#8e613f]
-            ${commonTextClasses} font-normal
-          `}
-        >
-          Register Now
-        </button>
-      </div>
     </header>
   );
 }

@@ -1,133 +1,91 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { FiArrowRight } from "react-icons/fi";
-import { useRouter } from "next/navigation"; // 1. Import useRouter
+import { useRouter } from "next/navigation";
 
 export default function SeventhSection() {
-  const router = useRouter(); // 2. Initialize router
+  const router = useRouter();
+  // We initialize as null to avoid hydration mismatches, or true if you want default visibility
+  const [isVisible, setIsVisible] = useState(true);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+
+    // 1. Check if we have already hidden it in the past
+    const isAlreadyHidden = localStorage.getItem("promoSectionHidden");
+
+    if (isAlreadyHidden) {
+      setIsVisible(false);
+      return;
+    }
+
+    // 2. If not hidden yet, wait 2 seconds, then hide it and save to localStorage
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      localStorage.setItem("promoSectionHidden", "true");
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleRegisterClick = () => {
-    router.push("/Register"); // 3. Navigation logic
+    router.push("/Register");
   };
 
+  // Prevent hydration mismatch by waiting for mount
+  if (!hasMounted) return null;
+
+  // If invisible, render nothing
+  if (!isVisible) return null;
+
   return (
-    <section className="w-full bg-[#FBFAF2] relative flex justify-center items-center py-12 md:py-0">
-      
-{/* ---------------- Mobile view - small card ---------------- */}
-<div className="md:hidden w-11/12 max-w-sm mx-auto relative rounded-lg overflow-hidden min-h-[350px] flex flex-col items-center justify-center">
-  
-  {/* Image with zoom */}
-  <div className="absolute inset-0 scale-[1.5]">
-    <Image
-      src="/Images/homepage/section8/image1.webp"
-      alt="Mobile Background"
-      fill
-      className="object-cover object-center"
-      priority
-    />
-  </div>
-
-  {/* Overlay */}
-  <div className="absolute inset-0 bg-black/30 z-10 rounded-lg"></div>
-
-  {/* Content */}
-  <div className="relative z-20 text-center flex flex-col items-center px-4">
-    <h2
-      className="text-2xl sm:text-3xl font-normal bg-clip-text text-transparent bg-gradient-to-r from-[#D9A05B] via-[#EFE8D6] to-[#F2F0E4] mb-3 sm:mb-4 leading-snug"
-      style={{ fontFamily: "DM Serif Text, serif" }}
-    >
-      Ready to Begin Your Journey?
-    </h2>
-
-    <p
-      className="text-sm sm:text-base font-medium text-[#FBFAF2] mb-8 sm:mb-10"
-      style={{ fontFamily: "Lato, sans-serif" }}
-    >
-      Take the next step toward transforming your surgical practice. Explore 
-      our programs and secure your seat in an upcoming training batch.
-    </p>
-
-    <button
-      onClick={handleRegisterClick}
-      className="flex items-center justify-center rounded-full transition-shadow duration-300 hover:shadow-[0_0_15px_rgba(255,234,210,0.5)] px-6 py-2"
-      style={{
-        background: "linear-gradient(90deg, #FBFAF2, #FFEAD2)",
-        fontFamily: "Lato, sans-serif",
-        fontWeight: "400",
-        fontSize: "16px",
-        color: "#000",
-      }}
-    >
-      Register Now
-      <FiArrowRight className="ml-2" size={18} />
-    </button>
-  </div>
-</div>
-
-      
-      {/* ---------------- Desktop view ---------------- */}
-      <div className="hidden md:block relative flex flex-col justify-center items-center min-h-screen">
+    <section className="w-full bg-[#FBFAF2] py-12 md:py-20 flex justify-center items-center animate-fade-in">
+      <div className="relative w-full max-w-[1306px] mx-4 md:mx-auto aspect-[4/5] sm:aspect-square md:aspect-[16/9] lg:aspect-[1.8/1] rounded-2xl overflow-hidden shadow-lg">
         <Image
           src="/Images/homepage/section8/image1.webp"
-          alt="Seventh Section Image"
-          width={1306}
-          height={724}
-          className="object-contain mt-32" 
+          alt="Journey Background"
+          fill
+          className="object-cover"
+          priority
         />
 
-        {/* Heading */}
-        <h2
-          className="absolute text-center text-4xl font-normal bg-clip-text text-transparent bg-gradient-to-r from-[#D9A05B] via-[#EFE8D6] to-[#F2F0E4] whitespace-nowrap"
-          style={{
-            fontFamily: "DM Serif Text, serif",
-            top: "40%", 
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-        >
-          Ready to Begin Your Journey?
-        </h2>
-        
-        {/* Subtitle */}
-        <p
-          className="absolute text-center text-[24px] font-medium"
-          style={{
-            fontFamily: "Lato, sans-serif",
-            color: "#FBFAF2",
-            top: "48%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            maxWidth: "90%",
-            whiteSpace: "nowrap", 
-          }}
-        >
-          Take the next step toward transforming your surgical practice. Explore <br />
-          our programs and secure your seat in an upcoming training batch.
-        </p>
+        <div className="absolute inset-0 bg-black/40 md:bg-black/20" />
 
-        {/* Button (Desktop) */}
-        <button
-          onClick={handleRegisterClick} 
-          className="absolute flex items-center justify-center rounded-full transition-shadow duration-300 hover:shadow-[0_0_15px_rgba(255,234,210,0.5)]"
-          style={{
-            top: "58%", 
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "167px",
-            height: "43px",
-            background: "linear-gradient(90deg, #FBFAF2, #FFEAD2)",
-            fontFamily: "Lato, sans-serif",
-            fontWeight: "400",
-            fontSize: "16px",
-            color: "#000",
-          }}
-        >
-          Register Now
-          <FiArrowRight className="ml-2" size={18} />
-        </button>
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6">
+          <h2
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal bg-clip-text text-transparent bg-gradient-to-r from-[#D9A05B] via-[#EFE8D6] to-[#F2F0E4] mb-4 md:mb-6 leading-tight"
+            style={{ fontFamily: "DM Serif Text, serif" }}
+          >
+            Ready to Begin Your Journey?
+          </h2>
+
+          <p
+            className="text-base sm:text-lg md:text-2xl font-medium text-[#FBFAF2] mb-8 md:mb-12 max-w-lg md:max-w-4xl leading-relaxed"
+            style={{ fontFamily: "Lato, sans-serif" }}
+          >
+            Take the next step toward transforming your surgical practice. Explore
+            our programs and secure your seat in an upcoming training batch.
+          </p>
+
+          <button
+            onClick={handleRegisterClick}
+            className="flex items-center justify-center rounded-full transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,234,210,0.4)] active:scale-95 px-8 py-3 md:px-10 md:py-4"
+            style={{
+              background: "linear-gradient(90deg, #FBFAF2, #FFEAD2)",
+              fontFamily: "Lato, sans-serif",
+              fontWeight: "400",
+              fontSize: "16px",
+              color: "#000",
+            }}
+          >
+            <span className="md:text-lg">Register Now</span>
+            <FiArrowRight className="ml-2" size={20} />
+          </button>
+        </div>
       </div>
-
     </section>
   );
 }

@@ -1,4 +1,3 @@
-// components/SplashLayout.tsx
 "use client";
 
 import { useState } from "react";
@@ -17,10 +16,12 @@ export default function SplashLayout({ children }: Props) {
       {!splashDone && <SplashScreen onComplete={() => setSplashDone(true)} />}
 
       {splashDone && (
-        <>
+        <div className="w-[1920px] relative bg-white">
           <Header />
-          <main className="min-h-screen">{children}</main>
-        </>
+          <main className="w-full min-h-screen">
+            {children}
+          </main>
+        </div>
       )}
     </>
   );
